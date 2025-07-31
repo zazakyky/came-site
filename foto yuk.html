@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotobooth Lucu</title>
+    <style>
+        body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ffcc00; /* Warna latar belakang cerah */
+    font-family: 'Comic Sans MS', cursive, sans-serif; /* Font lucu */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.video-photo-container {
+    display: flex; /* Mengatur video dan foto dalam satu baris */
+    align-items: flex-start; /* Menyelaraskan bagian atas */
+}
+
+.video-stream {
+    width: 60%;
+    border: 5px solid #ff3366; /* Warna border */
+    border-radius: 10px; /* Sudut melengkung */
+}
+
+.photo-strip {
+    display: flex;
+    flex-direction: column; /* Mengatur foto dalam satu kolom */
+    align-items: center;
+    margin-left: 20px; /* Jarak antara video dan foto */
+}
+
+.photo-box {
+    width: 100px; /* Atur lebar kotak foto */
+    height: 100px; /* Atur tinggi kotak foto */
+    margin: 5px; /* Jarak antar kotak */
+    border: 2px solid #ff3366; /* Warna border kotak foto */
+    border-radius: 10px; /* Sudut melengkung */
+    overflow: hidden; /* Sembunyikan bagian yang melebihi kotak */
+    background-size: cover; /* Mengatur ukuran gambar agar sesuai dengan kotak */
+    background-position: center; /* Memusatkan gambar */
+}
+
+.controls {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.button {
+    background-color: #ff3366; /* Warna tombol */
+    color: white; /* Teks putih */
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px; /* Sudut melengkung tombol */
+    cursor: pointer;
+    transition: transform 0.2s; /* Transisi saat hover */
+}
+
+.button:hover {
+    transform: scale(1.1); /* Membesar saat di-hover */
+}
+
+.countdown {
+    font-size: 48px; /* Ukuran font untuk timer */
+    color: #ff3366; /* Warna timer */
+    margin-top: 20px; /* Jarak atas */
+}
+
+canvas {
+    display: none;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fotobooth Lucu!</h1>
+        <div class="video-photo-container">
+            <video id="video" class="video-stream" autoplay></video>
+            <div class="photo-strip"></div>
+        </div>
+        <div class="controls">
+            <button id="snap" class="button">Ambil Foto</button>
+            <button id="save" class="button">Simpan Foto</button>
+            <select id="filter" class="button">
+                <option value="none">Tanpa Filter</option>
+                <option value="grayscale">Hitam Putih</option>
+                <option value="sepia">Sepia</option>
+                <option value="invert">Invert Warna</option>
+                <option value="blur">Blur</option>
+                <option value="brightness">Kecerahan</option>
+                <option value="contrast">Kontras</option>
+            </select>
+        </div>
+        <div id="countdown" class="countdown">3</div> <!-- Elemen untuk timer -->
+    </div>
+    <canvas id="canvas"></canvas>
+    <script >
+        const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const context = canvas.getContext('2d');
+const snapButton = document.getElementById('snap');
+const saveButton = document.getElementById('save');
+const filterSelect = document.getElementById('filter');
+const countdownDisplay = document.getElementById('countdown');
+
+// Mengakses webcam
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+        video.srcObject = stream;
+    })
+    .catch(err => {
+        console.error("Error accessing webcam: ", err);
+    });
+
+// Mengambil foto
+snapButton.addEventListener('click', () => {
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    applyFilter();
+    canvas.style.display = 'block'; // Menampilkan canvas setelah foto diambil
+    takePhoto(); // Menambahkan foto ke photo strip
+});
+
+// Menerapkan filter
+function applyFilter() {
+    const filter = filterSelect.value;
+    context.filter = filter === 'none' ? 'none' : filter === 'grayscale' ? 'grayscale(100%)' : 'sepia(100%)';
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+}
+
+// Menyimpan foto
+saveButton.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = 'foto.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+});
+    </script>
+</body>
+</html>
